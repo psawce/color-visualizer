@@ -788,13 +788,29 @@ let currentSort = 'name';
 let currentView = 'palettes';
 let selectedBubble = null;
 
+async function fetchCsvText() {
+  let proxyErr;
+  try {
+    const res = await fetch('/api/csv');
+    if (res.ok) return await res.text();
+    proxyErr = new Error('GET /api/csv → HTTP ' + res.status);
+  } catch (e) {
+    proxyErr = e;
+  }
+  try {
+    const res = await fetch(dropboxCsvFetchUrl(CSV_URL));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.text();
+  } catch (e) {
+    throw proxyErr || e;
+  }
+}
+
 async function loadCsvAndInit() {
   const grid = document.getElementById('palettes-grid');
   grid.innerHTML = '<div style="padding:40px;color:var(--muted);font-size:0.9em;">Loading data…</div>';
   try {
-    const res = await fetch(dropboxCsvFetchUrl(CSV_URL));
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
+    const text = await fetchCsvText();
     ALL_FIRMS = parseCSV(text);
     filteredFirms = [...ALL_FIRMS];
     allColors = [];
@@ -806,7 +822,7 @@ async function loadCsvAndInit() {
     if (currentView === 'explorer') renderExplorer();
     if (currentView === 'photo') renderPhoto();
   } catch (e) {
-    grid.innerHTML = '<div style="padding:40px;color:#8B2942;max-width:560px;line-height:1.5">Could not load CSV. Serve this page over http(s) (not file://) if the request is blocked, and confirm the Dropbox file is shared publicly.</div>';
+    grid.innerHTML = '<div style="padding:40px;color:#8B2942;max-width:560px;line-height:1.5">Could not load CSV. On Vercel, the app loads via <code style="font-family:var(--font-mono)">/api/csv</code> (same-origin) to avoid Dropbox CORS; redeploy after adding <code style="font-family:var(--font-mono)">api/csv.js</code>. For local preview without Vercel, use <code style="font-family:var(--font-mono)">vercel dev</code> or serve the CSV from this origin.</div>';
     console.error(e);
   }
 }
