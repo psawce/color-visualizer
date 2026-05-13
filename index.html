@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Law Firm Color Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0D0D0D;
+  --paper: #F7F4EE;
+  --paper2: #EFECE4;
+  --rule: #D8D3C8;
+  --accent: #1A1A2E;
+  --gold: #C8A96E;
+  --muted: #8A8478;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Header ── */
+header {
+  border-bottom: 1px solid var(--rule);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.logo h1 {
+  font-family: var(--font-display);
+  font-size: 1.25em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.logo span {
+  font-size: 0.75em;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.header-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat {
+  text-align: right;
+}
+
+.stat .num {
+  font-family: var(--font-display);
+  font-size: 1.3em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat .label {
+  font-size: 0.68em;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Nav tabs ── */
+.nav-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--rule);
+  padding: 0 40px;
+  background: var(--paper);
+  gap: 0;
+}
+
+.tab {
+  padding: 14px 24px;
+  font-size: 0.82em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  transition: all 0.2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-body);
+}
+
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ── Main layout ── */
+.main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
+
+/* ── View: Palettes ── */
+.palettes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.firm-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 80px;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 4px;
+}
+
+.firm-row:hover { background: var(--paper2); padding-left: 8px; padding-right: 8px; }
+
+.firm-name {
+  font-size: 0.82em;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.firm-url {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.palette-bar {
+  display: flex;
+  height: 36px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 1px;
+}
+
+.palette-segment {
+  height: 100%;
+  transition: flex 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+
+.palette-segment:hover::after {
+  content: attr(data-hex);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  white-space: nowrap;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.photo-pct {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  color: var(--muted);
+}
+
+.photo-pct .num {
+  font-size: 1.1em;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ── View: Compare ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.firm-card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.firm-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.firm-card-palette {
+  display: flex;
+  height: 80px;
+}
+
+.firm-card-palette div { flex: 1; }
+
+.firm-card-info {
+  padding: 14px 16px;
+}
+
+.firm-card-name {
+  font-size: 0.88em;
+  font-weight: 600;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.firm-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.firm-card-url {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  color: var(--muted);
+}
+
+.photo-badge {
+  font-size: 0.7em;
+  background: var(--paper2);
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+/* ── View: Color Explorer ── */
+.explorer-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.color-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: flex-start;
+}
+
+.color-bubble {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.color-bubble:hover, .color-bubble.selected {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-color: var(--ink);
+  z-index: 10;
+}
+
+.color-detail {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 24px;
+  position: sticky;
+  top: 120px;
+}
+
+.color-detail-swatch {
+  width: 100%;
+  height: 120px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 1px solid var(--rule);
+}
+
+.color-detail-hex {
+  font-family: var(--font-display);
+  font-size: 2em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.color-detail-firms {
+  margin-top: 16px;
+}
+
+.color-detail-firms h3 {
+  font-size: 0.72em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.color-firm-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.82em;
+}
+
+.color-firm-item:last-child { border-bottom: none; }
+
+.color-firm-pct {
+  font-family: var(--font-mono);
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+/* ── View: Photo Coverage ── */
+.photo-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.photo-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 60px;
+  align-items: center;
+  gap: 16px;
+}
+
+.photo-row-name {
+  font-size: 0.82em;
+  font-weight: 500;
+  text-align: right;
+  line-height: 1.3;
+}
+
+.photo-bar-outer {
+  background: var(--paper2);
+  border-radius: 3px;
+  height: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.photo-bar-inner {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.photo-bar-pct {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  color: white;
+  font-weight: 500;
+  mix-blend-mode: difference;
+}
+
+.photo-val {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ── Controls ── */
+.controls-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-family: var(--font-body);
+  font-size: 0.85em;
+  outline: none;
+  width: 240px;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus { border-color: var(--ink); }
+
+.sort-btn {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-family: var(--font-body);
+  font-size: 0.82em;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--muted);
+}
+
+.sort-btn:hover, .sort-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.view-label {
+  font-size: 0.72em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+/* ── Detail modal ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13,13,13,0.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  width: 640px;
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 1em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.modal-close:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.modal-palette {
+  display: flex;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.modal-palette div { flex: 1; }
+
+.modal-colors {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.modal-color {
+  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  transition: transform 0.15s;
+}
+
+.modal-color:hover { transform: scale(1.05); }
+
+.modal-color-swatch { height: 48px; }
+
+.modal-color-info {
+  padding: 6px 8px;
+  background: white;
+}
+
+.modal-color-hex {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  font-weight: 500;
+  display: block;
+}
+
+.modal-color-pct {
+  font-size: 0.65em;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.modal-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-meta-item {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.modal-meta-label {
+  font-size: 0.68em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.modal-meta-value {
+  font-size: 1.2em;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.modal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.8em;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 8px 14px;
+  transition: all 0.15s;
+  font-family: var(--font-mono);
+}
+
+.modal-link:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ── Section header ── */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.4em;
+  font-weight: 700;
+}
+
+.section-count {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  color: var(--muted);
+}
+
+/* ── Empty ── */
+.empty {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  pointer-events: none;
+  z-index: 300;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Law Firm Color Intelligence</h1>
+    <span id="data-date">2026</span>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="num" id="stat-firms">—</div>
+      <div class="label">Firms</div>
+    </div>
+    <div class="stat">
+      <div class="num" id="stat-colors">—</div>
+      <div class="label">Color Samples</div>
+    </div>
+    <div class="stat">
+      <div class="num" id="stat-photo">—</div>
+      <div class="label">Avg Photo Coverage</div>
+    </div>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <button class="tab active" onclick="setView('palettes')">Firm Palettes</button>
+  <button class="tab" onclick="setView('compare')">Compare</button>
+  <button class="tab" onclick="setView('explorer')">Color Explorer</button>
+  <button class="tab" onclick="setView('photo')">Photo Coverage</button>
+</div>
+
+<div class="main">
+
+  <!-- Palettes View -->
+  <div id="view-palettes">
+    <div class="controls-bar">
+      <input class="search-input" type="text" placeholder="Search firms..." oninput="filterFirms(this.value)">
+      <button class="sort-btn active" onclick="sortFirms('name', this)">A–Z</button>
+      <button class="sort-btn" onclick="sortFirms('photo', this)">Photo %</button>
+      <button class="sort-btn" onclick="sortFirms('dominant', this)">Dominant Color</button>
+      <span class="view-label" id="palette-count"></span>
+    </div>
+    <div class="palettes-grid" id="palettes-grid"></div>
+  </div>
+
+  <!-- Compare View -->
+  <div id="view-compare" style="display:none">
+    <div class="section-header">
+      <div class="section-title">All Firms</div>
+      <div class="section-count">Click a firm to see full details</div>
+    </div>
+    <div class="compare-grid" id="compare-grid"></div>
+  </div>
+
+  <!-- Color Explorer View -->
+  <div id="view-explorer" style="display:none">
+    <div class="section-header">
+      <div class="section-title">Color Explorer</div>
+      <div class="section-count">Click any color to see which firms use it</div>
+    </div>
+    <div class="explorer-layout">
+      <div>
+        <div class="controls-bar">
+          <button class="sort-btn active" onclick="sortBubbles('pct', this)">By Coverage</button>
+          <button class="sort-btn" onclick="sortBubbles('hue', this)">By Hue</button>
+          <button class="sort-btn" onclick="sortBubbles('light', this)">Light → Dark</button>
+        </div>
+        <div class="color-cloud" id="color-cloud"></div>
+      </div>
+      <div class="color-detail" id="color-detail">
+        <div style="text-align:center; color:var(--muted); padding: 40px 0; font-size:0.88em;">
+          Select a color from the left to see details
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Coverage View -->
+  <div id="view-photo" style="display:none">
+    <div class="section-header">
+      <div class="section-title">Photo Coverage by Firm</div>
+      <div class="section-count">% of homepage covered by photography</div>
+    </div>
+    <div class="photo-chart" id="photo-chart"></div>
+  </div>
+
+</div>
+
+<!-- Firm Detail Modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const CSV = `firm_name,website_url,date_analyzed,rank,hex,percentage,photo_coverage_pct
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,1,#F6FDFF,45.9423,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,2,#DCEFFF,15.7259,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,3,#021130,7.3629,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,4,#FFFFFF,5.6663,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,5,#031331,5.5133,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,6,#1A2945,5.0169,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,7,#EAF4FF,4.8702,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,8,#ACD0FE,2.1406,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,9,#FBFCFF,1.8531,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,10,#C3DDFD,1.8362,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,11,#20486F,1.3647,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,12,#0C1C3B,0.7322,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,13,#D5E7FD,0.726,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,14,#DCEFFF,0.7199,0.0
+"Cravath, Swaine & Moore LLP",cravath.com,2026-05-12 22:23,15,#8AA3BE,0.5297,0.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,1,#F3F8F9,23.222,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,2,#E8EFF3,23.1808,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,3,#FFFFFF,19.8909,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,4,#0E2643,7.1456,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,5,#193852,6.4846,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,6,#142E47,5.962,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,7,#D3DBE4,3.6112,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,8,#08213D,3.2028,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,9,#202020,2.017,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,10,#274465,1.6303,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,11,#355672,1.1875,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,12,#2367A6,0.9154,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,13,#454649,0.7329,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,14,#747A83,0.4107,8.0
+"Wachtell, Lipton, Rosen & Katz",wlrk.com,2026-05-12 22:24,15,#A4ABB4,0.4061,8.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,1,#FFFFFF,23.4155,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,2,#0B0B0E,14.4526,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,3,#B94033,9.5276,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,4,#AD352B,8.4497,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,5,#383433,8.4278,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,6,#6A87AB,7.7163,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,7,#1A1E2A,4.9745,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,8,#616A76,4.632,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,9,#62574D,4.1471,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,10,#DFD9D2,3.7422,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,11,#B4ACA7,3.3451,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,12,#938372,3.0488,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,13,#2F4D5F,1.8466,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,14,#EDA659,1.1828,45.0
+"Skadden, Arps, Slate, Meagher & Flom LLP",skadden.com,2026-05-12 22:25,15,#ED3326,1.0914,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,1,#FFFFFF,41.1915,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,2,#D8D8D7,12.5999,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,3,#0B090B,11.1776,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,4,#171E2B,4.8453,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,5,#301E13,4.7541,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,6,#32363F,4.2069,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,7,#5B3A25,3.9947,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,8,#755D44,3.9107,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,9,#3A4A64,3.1173,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,10,#85888F,2.784,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,11,#D0CECD,2.7264,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,12,#9D7C54,1.9813,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,13,#9CAAC2,1.1966,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,14,#DCB077,1.1497,45.0
+Latham & Watkins LLP,lw.com,2026-05-12 22:26,15,#DD7F21,0.3639,45.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,1,#FFFEF7,53.3576,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,2,#F0EEE6,21.0935,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,3,#233D54,4.14,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,4,#394D65,3.8037,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,5,#172D3E,3.5498,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,6,#07172A,2.8161,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,7,#386779,2.3251,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,8,#020304,1.7932,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,9,#BEBAB9,1.7179,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,10,#708192,1.5148,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,11,#386DAE,1.2361,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,12,#73A5C2,0.8052,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,13,#8B625B,0.6478,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,14,#94D6DF,0.6379,35.0
+Sullivan & Cromwell LLP,sullcrom.com,2026-05-12 22:28,15,#DCDFDE,0.5612,35.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,1,#1C1C1C,56.3536,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,2,#1A3967,5.9333,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,3,#326BA0,5.9046,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,4,#1F4E94,5.4983,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,5,#21477B,4.7714,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,6,#5A7AAF,4.1047,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,7,#163057,3.9841,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,8,#0C1F37,3.6968,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,9,#524778,2.3148,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,10,#3CA0C6,1.9671,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,11,#FAFBFC,1.3382,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,12,#CED4E0,1.166,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,13,#7F5C8F,1.1254,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,14,#84ABCE,1.0449,45.0
+Kirkland & Ellis LLP,kirkland.com,2026-05-12 22:29,15,#AF8CAA,0.7967,45.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,1,#140BE2,44.8693,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,2,#9DF4F9,14.7347,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,3,#010101,10.9593,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,4,#FFFFFF,9.1624,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,5,#8FD7F7,2.3882,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,6,#7FBEF4,2.2557,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,7,#71A6F2,2.0813,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,8,#3E53EC,2.0709,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,9,#567BF0,2.0428,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,10,#6491F1,1.8591,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,11,#4A68E4,1.755,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,12,#3348D8,1.6861,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,13,#2232C8,1.5853,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,14,#1B20C2,1.5566,0.0
+Davis Polk & Wardwell LLP,davispolk.com,2026-05-12 22:29,15,#8BC5F5,1.4933,0.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,1,#FAFAFA,33.4888,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,2,#FFFFFF,25.4002,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,3,#242121,11.2311,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,4,#172040,5.8213,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,5,#3E3C3C,5.0655,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,6,#1F2D5C,4.9538,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,7,#7F1D29,3.4791,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,8,#636469,2.8199,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,9,#9A9898,2.0799,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,10,#B3B3B3,1.8993,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,11,#D9D9D9,1.4592,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,12,#5E89C1,0.9702,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,13,#7D4957,0.7279,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,14,#BE9393,0.5903,25.0
+"Gibson, Dunn & Crutcher LLP",gibsondunn.com,2026-05-12 22:30,15,#35466F,0.5135,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,1,#FFFFFF,43.9698,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,2,#1E1D1C,18.5603,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,3,#3B3935,11.2705,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,4,#5E5C59,7.2503,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,5,#817E7B,4.6712,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,6,#A09D9A,3.6003,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,7,#BDB9B6,3.1697,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,8,#D3D0CE,2.3484,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,9,#E5E4E3,2.1289,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,10,#921A2B,1.5073,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,11,#B12134,0.8293,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,12,#CB2A3C,0.5978,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,13,#D8DBDD,0.4567,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,14,#EFF0EF,0.3943,25.0
+Milbank LLP,milbank.com,2026-05-12 22:31,15,#F5F4F2,0.3452,25.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,1,#F0EFEF,30.1964,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,2,#FFFFFF,14.2988,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,3,#3C3C3C,9.5499,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,4,#595757,8.7012,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,5,#787575,8.1185,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,6,#131313,6.6661,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,7,#989595,5.1712,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,8,#B6B3B3,4.2677,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,9,#CFCCCC,4.1185,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,10,#E3E1E1,3.9063,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,11,#052150,2.8836,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,12,#103B7A,1.2039,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,13,#1E5CA8,0.5773,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,14,#1B4E8C,0.3071,55.0
+"Simpson Thacher & Bartlett LLP",stblaw.com,2026-05-12 22:32,15,#AC272E,0.1335,55.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,1,#FAFAFA,33.9308,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,2,#FFFFFF,20.1849,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,3,#1C1917,12.8154,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,4,#323232,10.0888,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,5,#3D6B8A,3.9474,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,6,#E9E4DD,3.7988,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,7,#4D4843,3.4265,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,8,#7F7673,2.8282,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,9,#B0AAA4,2.2427,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,10,#658FAA,2.1006,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,11,#CEC8C1,1.8876,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,12,#D9D3CB,1.5313,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,13,#8FACCB,1.0008,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,14,#C38866,0.6623,35.0
+"Paul, Weiss, Rifkind, Wharton & Garrison LLP",paulweiss.com,2026-05-12 22:32,15,#AB7864,0.5539,35.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,1,#F2EDE5,55.3699,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,2,#FFFFFF,18.6756,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,3,#161410,7.6773,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,4,#930D13,5.8857,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,5,#2D2C26,4.4755,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,6,#0F0E0A,4.3111,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,7,#4F4D46,3.1561,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,8,#7B756A,1.9828,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,9,#9A9285,1.8791,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,10,#526074,1.715,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,11,#D2CCC4,1.5914,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,12,#B8AC9B,1.5065,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,13,#E8E2D8,0.9885,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,14,#F7F7F6,0.7726,25.0
+Susman Godfrey LLP,susmangodfrey.com,2026-05-12 22:33,15,#DC7133,0.6658,25.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,1,#FFFFFF,37.9425,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,2,#281436,23.9216,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,3,#361B4B,22.367,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,4,#E1E0E3,2.8367,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,5,#F6D698,2.4153,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,6,#A3A3C7,1.5537,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,7,#C9BFC6,1.4136,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,8,#100B0D,1.3597,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,9,#594E67,1.1557,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,10,#A35E55,1.1166,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,11,#6C372A,1.0578,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,12,#827989,0.8848,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,13,#C48680,0.7541,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,14,#E3A25C,0.6142,35.0
+Perkins Coie LLP,perkinscoie.com,2026-05-12 22:33,15,#5970B4,0.6067,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,1,#181818,44.5735,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,2,#242425,16.2126,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,3,#761A25,6.9386,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,4,#FEFDFB,6.3312,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,5,#030303,4.4757,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,6,#3F4142,4.4573,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,7,#DFE4E6,3.2784,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,8,#C0C7CB,2.5431,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,9,#54656E,2.4721,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,10,#8B8781,2.1833,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,11,#A8AAAA,2.163,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,12,#876448,1.5866,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,13,#F8DFAE,1.4092,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,14,#E0A75E,0.7741,35.0
+WilmerHale,wilmerhale.com,2026-05-12 22:34,15,#6699B7,0.6015,35.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,1,#FEF9F7,45.9973,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,2,#FFFFFF,29.8461,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,3,#F0EEEC,5.6514,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,4,#1F3B4A,3.1044,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,5,#375161,2.7861,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,6,#163547,2.1246,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,7,#2F4D5E,2.0675,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,8,#2A4250,1.9952,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,9,#231F20,1.697,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,10,#0C2938,1.284,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,11,#294759,1.2622,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,12,#FBFAF9,1.0945,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,13,#CFB3B0,0.5375,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,14,#D74B39,0.5224,0.0
+"Munger, Tolles & Olson LLP",mto.com,2026-05-12 22:34,15,#FEF9F7,0.0297,0.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,1,#FFFFFF,58.0197,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,2,#253408,6.872,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,3,#EAEDE0,5.2412,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,4,#4C493B,3.4166,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,5,#2A3137,3.4143,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,6,#0D1B20,3.3528,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,7,#DCD6CE,3.3047,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,8,#9F8A7A,3.2782,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,9,#C1F25D,2.9529,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,10,#796956,2.1359,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,11,#D5F4A1,2.0075,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,12,#B6AEA9,1.9758,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,13,#2E576E,1.6928,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,14,#648D99,1.323,45.0
+Hogan Lovells,hoganlovells.com,2026-05-12 22:36,15,#3184D3,1.0124,45.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,1,#FFFFFF,35.3891,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,2,#37323D,19.369,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,3,#5B7D59,14.0707,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,4,#0D232E,5.881,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,5,#0B1318,5.309,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,6,#4B555E,3.7104,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,7,#6A747B,2.9246,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,8,#EBE7DC,2.5396,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,9,#3E2467,2.3215,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,10,#173C4D,2.2589,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,11,#8C969B,2.0279,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,12,#B0BDC0,1.5607,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,13,#402A1C,0.9383,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,14,#E0C19C,0.8859,35.0
+Willkie Farr & Gallagher LLP,willkie.com,2026-05-12 22:36,15,#A1652E,0.8133,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,1,#FFFFFF,32.7964,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,2,#253645,22.8076,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,3,#F5F7F8,16.7344,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,4,#923389,7.8884,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,5,#23A844,4.2897,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,6,#0E0F10,4.0929,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,7,#565758,2.4592,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,8,#FF5900,1.7067,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,9,#CDD1D3,1.6882,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,10,#828B6E,1.6735,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,11,#9A9B9D,1.2407,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,12,#B2B2B3,1.1334,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,13,#00426B,0.5705,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,14,#00A0AF,0.4969,35.0
+Akin Gump Strauss Hauer & Feld LLP,akingump.com,2026-05-12 22:37,15,#FFFFFF,0.4215,35.0`;
+
+// ── Parse CSV ─────────────────────────────────────────────────────────────────
+function parseCSV(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = lines[0].split(',');
+  const firms = {};
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // Handle quoted fields
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+    cols.push(cur);
+
+    const name = cols[0];
+    if (!firms[name]) {
+      firms[name] = {
+        name,
+        url: cols[1],
+        date: cols[2],
+        photo: parseFloat(cols[6]) || 0,
+        colors: []
+      };
+    }
+    firms[name].colors.push({
+      rank: parseInt(cols[3]),
+      hex: cols[4],
+      pct: parseFloat(cols[5])
+    });
+  }
+  return Object.values(firms);
+}
+
+const ALL_FIRMS = parseCSV(CSV);
+let filteredFirms = [...ALL_FIRMS];
+let currentSort = 'name';
+let currentView = 'palettes';
+let selectedBubble = null;
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-firms').textContent = ALL_FIRMS.length;
+  document.getElementById('stat-colors').textContent = (ALL_FIRMS.length * 15).toLocaleString();
+  const avgPhoto = ALL_FIRMS.reduce((s, f) => s + f.photo, 0) / ALL_FIRMS.length;
+  document.getElementById('stat-photo').textContent = avgPhoto.toFixed(0) + '%';
+}
+
+// ── View switching ─────────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  ['palettes','compare','explorer','photo'].forEach(id => {
+    document.getElementById('view-' + id).style.display = id === v ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['palettes','compare','explorer','photo'][i] === v);
+  });
+  if (v === 'explorer') renderExplorer();
+  if (v === 'photo') renderPhoto();
+  if (v === 'compare') renderCompare();
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return [r,g,b];
+}
+
+function getLuminance(hex) {
+  const [r,g,b] = hexToRgb(hex);
+  return (0.299*r + 0.587*g + 0.114*b) / 255;
+}
+
+function getTextColor(hex) {
+  return getLuminance(hex) > 0.5 ? '#111' : '#fff';
+}
+
+function hexToHsl(hex) {
+  let [r,g,b] = hexToRgb(hex).map(x => x/255);
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h,s,l = (max+min)/2;
+  if (max===min) { h=s=0; }
+  else {
+    const d = max-min;
+    s = l>0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){
+      case r: h=(g-b)/d+(g<b?6:0); break;
+      case g: h=(b-r)/d+2; break;
+      case b: h=(r-g)/d+4; break;
+    }
+    h/=6;
+  }
+  return [h*360, s*100, l*100];
+}
+
+// ── Palettes View ─────────────────────────────────────────────────────────────
+function renderPalettes() {
+  const grid = document.getElementById('palettes-grid');
+  document.getElementById('palette-count').textContent = filteredFirms.length + ' firms';
+
+  grid.innerHTML = filteredFirms.map(firm => `
+    <div class="firm-row" onclick="openModal('${firm.name.replace(/'/g,"\\'")}')">
+      <div>
+        <div class="firm-name">${firm.name}</div>
+        <div class="firm-url">${firm.url}</div>
+      </div>
+      <div class="palette-bar">
+        ${firm.colors.map(c => `
+          <div class="palette-segment"
+            style="flex:${c.pct};background:${c.hex}"
+            data-hex="${c.hex} · ${c.pct.toFixed(1)}%">
+          </div>`).join('')}
+      </div>
+      <div class="photo-pct">
+        <div class="num">${firm.photo.toFixed(0)}%</div>
+        <div>photo</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterFirms(q) {
+  filteredFirms = ALL_FIRMS.filter(f =>
+    f.name.toLowerCase().includes(q.toLowerCase()) ||
+    f.url.toLowerCase().includes(q.toLowerCase())
+  );
+  renderPalettes();
+}
+
+function sortFirms(by, btn) {
+  currentSort = by;
+  document.querySelectorAll('#view-palettes .sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (by === 'name') filteredFirms.sort((a,b) => a.name.localeCompare(b.name));
+  if (by === 'photo') filteredFirms.sort((a,b) => b.photo - a.photo);
+  if (by === 'dominant') filteredFirms.sort((a,b) => {
+    const [,,la] = hexToHsl(a.colors[0].hex);
+    const [,,lb] = hexToHsl(b.colors[0].hex);
+    return la - lb;
+  });
+  renderPalettes();
+}
+
+// ── Compare View ──────────────────────────────────────────────────────────────
+function renderCompare() {
+  const grid = document.getElementById('compare-grid');
+  grid.innerHTML = ALL_FIRMS.map(firm => `
+    <div class="firm-card" onclick="openModal('${firm.name.replace(/'/g,"\\'")}')">
+      <div class="firm-card-palette">
+        ${firm.colors.slice(0,8).map(c =>
+          `<div style="background:${c.hex}"></div>`
+        ).join('')}
+      </div>
+      <div class="firm-card-info">
+        <div class="firm-card-name">${firm.name}</div>
+        <div class="firm-card-meta">
+          <span class="firm-card-url">${firm.url}</span>
+          <span class="photo-badge">📷 ${firm.photo.toFixed(0)}%</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Color Explorer ────────────────────────────────────────────────────────────
+let allColors = [];
+
+function buildColorList() {
+  const map = {};
+  ALL_FIRMS.forEach(firm => {
+    firm.colors.forEach(c => {
+      if (!map[c.hex]) map[c.hex] = { hex: c.hex, totalPct: 0, firms: [] };
+      map[c.hex].totalPct += c.pct;
+      map[c.hex].firms.push({ name: firm.name, pct: c.pct });
+    });
+  });
+  allColors = Object.values(map);
+}
+
+function renderExplorer() {
+  if (!allColors.length) buildColorList();
+  sortBubbles('pct', document.querySelector('#view-explorer .sort-btn'));
+}
+
+function sortBubbles(by, btn) {
+  if (!allColors.length) buildColorList();
+  document.querySelectorAll('#view-explorer .sort-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  let sorted = [...allColors];
+  if (by === 'pct')   sorted.sort((a,b) => b.totalPct - a.totalPct);
+  if (by === 'hue')   sorted.sort((a,b) => hexToHsl(a.hex)[0] - hexToHsl(b.hex)[0]);
+  if (by === 'light') sorted.sort((a,b) => getLuminance(b.hex) - getLuminance(a.hex));
+
+  const cloud = document.getElementById('color-cloud');
+  cloud.innerHTML = sorted.map(c => `
+    <div class="color-bubble ${selectedBubble===c.hex?'selected':''}"
+      style="background:${c.hex}"
+      title="${c.hex}"
+      onclick="selectColor('${c.hex}')">
+    </div>
+  `).join('');
+}
+
+function selectColor(hex) {
+  selectedBubble = hex;
+  document.querySelectorAll('.color-bubble').forEach(b => {
+    b.classList.toggle('selected', b.style.background === hex || b.title === hex);
+  });
+
+  const col = allColors.find(c => c.hex === hex);
+  if (!col) return;
+
+  const detail = document.getElementById('color-detail');
+  const firmsList = col.firms
+    .sort((a,b) => b.pct - a.pct)
+    .map(f => `
+      <div class="color-firm-item">
+        <span>${f.name}</span>
+        <span class="color-firm-pct">${f.pct.toFixed(2)}%</span>
+      </div>`).join('');
+
+  detail.innerHTML = `
+    <div class="color-detail-swatch" style="background:${hex}"></div>
+    <div class="color-detail-hex">${hex}</div>
+    <div style="font-size:0.78em;color:var(--muted);font-family:var(--font-mono);margin-bottom:8px">
+      Appears in ${col.firms.length} firm${col.firms.length>1?'s':''}
+    </div>
+    <div class="color-detail-firms">
+      <h3>Firms Using This Color</h3>
+      ${firmsList}
+    </div>
+  `;
+}
+
+// ── Photo View ────────────────────────────────────────────────────────────────
+function renderPhoto() {
+  const sorted = [...ALL_FIRMS].sort((a,b) => b.photo - a.photo);
+  const max = sorted[0].photo;
+
+  document.getElementById('photo-chart').innerHTML = sorted.map(firm => {
+    const w = max > 0 ? (firm.photo / max * 100) : 0;
+    const dominant = firm.colors[0].hex;
+    return `
+      <div class="photo-row">
+        <div class="photo-row-name">${firm.name}</div>
+        <div class="photo-bar-outer">
+          <div class="photo-bar-inner" style="width:${w}%;background:${dominant}">
+            ${firm.photo > 5 ? `<span class="photo-bar-pct">${firm.photo.toFixed(0)}%</span>` : ''}
+          </div>
+        </div>
+        <div class="photo-val">${firm.photo.toFixed(0)}%</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(name) {
+  const firm = ALL_FIRMS.find(f => f.name === name);
+  if (!firm) return;
+
+  const palette = firm.colors.map(c =>
+    `<div style="flex:${c.pct};background:${c.hex}"></div>`
+  ).join('');
+
+  const colorCards = firm.colors.map(c => `
+    <div class="modal-color" onclick="navigator.clipboard.writeText('${c.hex}')">
+      <div class="modal-color-swatch" style="background:${c.hex}"></div>
+      <div class="modal-color-info">
+        <span class="modal-color-hex">${c.hex}</span>
+        <span class="modal-color-pct">${c.pct.toFixed(1)}%</span>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title">${firm.name}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-palette">${palette}</div>
+    <div class="modal-colors">${colorCards}</div>
+    <div class="modal-meta">
+      <div class="modal-meta-item">
+        <div class="modal-meta-label">Photo Coverage</div>
+        <div class="modal-meta-value">${firm.photo.toFixed(0)}%</div>
+      </div>
+      <div class="modal-meta-item">
+        <div class="modal-meta-label">Dominant Color</div>
+        <div class="modal-meta-value" style="display:flex;align-items:center;gap:8px">
+          <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:${firm.colors[0].hex};border:1px solid var(--rule)"></span>
+          ${firm.colors[0].hex}
+        </div>
+      </div>
+    </div>
+    <a class="modal-link" href="https://${firm.url}" target="_blank">↗ Visit ${firm.url}</a>
+  `;
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+updateStats();
+filteredFirms.sort((a,b) => a.name.localeCompare(b.name));
+renderPalettes();
+</script>
+</body>
+</html>
